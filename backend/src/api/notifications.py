@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from src.services.notification import notification_service, Notification
 from src.core.websocket import websocket_manager
 from typing import List
@@ -14,7 +14,7 @@ class NotificationRequest(BaseModel):
     title: str
     message: str
     priority: str
-    category: str
+    topic: str
 
 
 @router.post("/notifications", response_model=Notification)
@@ -87,7 +87,7 @@ async def send_notification(notification: NotificationRequest):
             title=notification.title,
             message=notification.message,
             type=notification.priority,
-            data={"category": notification.category},
+            data={"topic": notification.topic},
         )
 
         logger.info(f"Notification created: {new_notification.dict()}")

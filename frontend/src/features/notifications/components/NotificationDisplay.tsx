@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { NotificationDisplayProps } from "../types/notification.types";
 import { Notification } from "./Notification";
-import { cn } from "@/shared/utils/utils";
+import { cn } from "@/core/utils/utils";
 
 export const NotificationDisplay = memo(function NotificationDisplay<T>({
   notifications,

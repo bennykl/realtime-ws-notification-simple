@@ -13,12 +13,38 @@ from jose import JWTError, jwt
 from src.core.config import settings
 from typing import Dict
 from datetime import datetime
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Store active connections
 active_connections: Dict[str, WebSocket] = {}
+
+
+def validate_origin(origin: str) -> bool:
+    """
+    Validate if the origin is allowed to connect to WebSocket
+    """
+    if not origin:
+        return False
+
+    try:
+        parsed_origin = urlparse(origin)
+        origin_host = parsed_origin.netloc
+
+        for allowed_origin in settings.ALLOWED_WS_ORIGINS:
+            parsed_allowed = urlparse(allowed_origin)
+            allowed_host = parsed_allowed.netloc
+
+            # Check if the host matches (including subdomains)
+            if origin_host == allowed_host or origin_host.endswith(f".{allowed_host}"):
+                return True
+
+        return False
+    except Exception as e:
+        logger.error(f"Error validating origin: {e}")
+        return False
 
 
 async def get_current_user(token: str):
@@ -54,6 +80,17 @@ async def get_current_user(token: str):
 @router.websocket("/ws/notification")
 async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
     try:
+        # Validate origin
+        origin = websocket.headers.get("origin")
+        if not validate_origin(origin):
+            logger.warning(
+                f"Rejected WebSocket connection from unauthorized origin: {origin}"
+            )
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            return
+
+        logger.info(f"WebSocket connection attempt with token: {token}")
+
         # Authenticate user
         username = await get_current_user(token)
         logger.info(f"User {username} authenticated successfully")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api import websocket, notifications, auth
+from src.api import websocket, notifications, auth, broadcast
 from src.core.config import settings
 import logging
 
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api")
 app.include_router(websocket.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
+app.include_router(broadcast.router, prefix="/api")
 
 
 @app.on_event("startup")

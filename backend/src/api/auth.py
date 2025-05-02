@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from pydantic import BaseModel
 from src.core.config import settings
+from src.config.users import get_user_by_username  # import dari config baru
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
@@ -14,7 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 USERS = {
     "admin": {
         "username": "admin",
-        "password": "password",  # In production, use hashed passwords
+        "password": "wkwkwk",  # In production, use hashed passwords
         "disabled": False,
     }
 }
@@ -27,6 +28,13 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+    company: Optional[str] = None  # tambahkan company
+    role: Optional[str] = None  # tambahkan role
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -62,15 +70,20 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 @router.post("/auth/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = USERS.get(form_data.username)
-    if not user or user["password"] != form_data.password:
+async def login(login_data: LoginRequest):
+    user = get_user_by_username(login_data.username)
+    if not user or user.password != login_data.password:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     # Set token expiration to 5 years
     access_token_expires = timedelta(days=365 * 5)
     access_token = create_access_token(
-        data={"sub": user["username"]}, expires_delta=access_token_expires
+        data={
+            "sub": user.username,
+            "company": user.company,  # tambahkan company ke token
+            "role": user.role,  # tambahkan role ke token
+        },
+        expires_delta=access_token_expires,
     )
 
     return {"access_token": access_token, "token_type": "bearer"}

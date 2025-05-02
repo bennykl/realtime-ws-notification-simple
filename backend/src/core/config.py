@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 import os
 from dotenv import load_dotenv
 
@@ -7,18 +6,20 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    # Database settings
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
-
     # JWT settings
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
 
     # CORS settings
     CORS_ORIGINS: list = ["*"]
+    ALLOWED_WS_ORIGINS: list = [
+        "http://localhost:80",
+        "http://localhost",
+        "https://d-realtime-notif.kitahq.com",
+    ]
 
-    FRONTEND_URL: str
+    FRONTEND_URL: str = "http://localhost:80"
     LOG_LEVEL: str = "INFO"
     PORT: int = 8000
 

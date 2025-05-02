@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { cn } from "@/shared/utils/utils";
+import { cn } from "@/core/utils/utils";
 import { NotificationProps } from "../types/notification.types";
 
 export const Notification = memo(function Notification<T>({
@@ -47,16 +47,26 @@ export const Notification = memo(function Notification<T>({
         className
       )}
       style={style}
+      data-testid={`notification-${notification.id}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <h3
+            className="text-sm font-medium text-gray-900 dark:text-gray-100"
+            data-testid="notification-title"
+          >
             {notification.title}
           </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p
+            className="mt-1 text-sm text-gray-500 dark:text-gray-400"
+            data-testid="notification-message"
+          >
             {notification.message}
           </p>
-          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+          <p
+            className="mt-1 text-xs text-gray-400 dark:text-gray-500"
+            data-testid="notification-timestamp"
+          >
             {new Date(notification.timestamp).toLocaleTimeString()}
           </p>
         </div>
@@ -65,6 +75,7 @@ export const Notification = memo(function Notification<T>({
             <button
               onClick={handleMarkAsRead}
               className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+              data-testid="mark-as-read-button"
             >
               Mark as read
             </button>
@@ -74,6 +85,7 @@ export const Notification = memo(function Notification<T>({
               key={index}
               onClick={action.onClick}
               className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+              data-testid={`notification-action-${index}`}
             >
               {action.label}
             </button>
@@ -81,6 +93,7 @@ export const Notification = memo(function Notification<T>({
           <button
             onClick={handleDismiss}
             className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+            data-testid="dismiss-button"
           >
             <span className="sr-only">Dismiss</span>
             <svg

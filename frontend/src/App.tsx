@@ -1,26 +1,30 @@
 import "./App.css";
-import { NotificationProvider } from "@/features/notifications/contexts/NotificationContext";
+import { NotificationProvider } from "@/core/contexts/NotificationContext";
 import { Toaster } from "sonner";
+import { AppRoutes } from "@/routes";
+import { useEffect } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { ConnectionStatus } from "./components/connection-status/ConnectionStatus";
 
-function App() {
+export default function App() {
+  const { token, initializeWebSocket } = useAuthStore();
+
+  useEffect(() => {
+    console.log("App: Mounted", {
+      hasToken: !!token,
+    });
+
+    // Initialize WebSocket if we have a token
+    if (token) {
+      initializeWebSocket();
+    }
+  }, [token, initializeWebSocket]);
+
   return (
     <NotificationProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Toaster richColors position="top-right" />
-        <main className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-            Real-time Notifications
-          </h1>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <p className="text-gray-600 dark:text-gray-400">
-              This is a demo of real-time notifications using WebSocket.
-              Notifications will appear in the top-right corner.
-            </p>
-          </div>
-        </main>
-      </div>
+      <AppRoutes />
+      <Toaster position="bottom-right" richColors />
+      <ConnectionStatus />
     </NotificationProvider>
   );
 }
-
-export default App;

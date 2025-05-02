@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 class WebSocketManager:
     def __init__(self):
+        # use redis to store active connections
         self.active_connections: Dict[str, Set[WebSocket]] = {}
 
     async def connect(self, websocket: WebSocket, user_id: str):
